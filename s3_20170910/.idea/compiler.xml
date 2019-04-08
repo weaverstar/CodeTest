@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="s3-common" />
+        <module name="s3-service" />
+        <module name="s3-system" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="s3" target="1.8" />
+      <module name="s3-common" target="1.8" />
+      <module name="s3-service" target="1.8" />
+      <module name="s3-system" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

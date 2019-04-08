@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.product.mapper.ProductMapper">
+    <!-- 请在此添加自定义方法（开始） -->
+
+    <!-- 请在此添加自定义方法（结束） -->
+
+    <sql id="Model_Where_Clause">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( id )">
+                AND id = #{id}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+                AND <![CDATA[create_time >= #{createTimeStart} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+                AND <![CDATA[create_time <= #{createTimeEnd} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( product )">
+                AND product_name = #{productName}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( typeId )">
+                AND type_id = #{typeId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( statusId )">
+                AND status_id = #{statusId}
+            </if>
+        </where>
+    </sql>
+
+
+
+    <sql id="Model_Where_Clause2">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( product )">
+                AND a.id = #{product}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+                AND <![CDATA[a.create_time >= #{createTimeStart} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+                AND <![CDATA[a.create_time <= #{createTimeEnd} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( productType )">
+                AND a.type_id = #{productType}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( statusId )">
+                AND a.status_id = #{statusId}
+            </if>
+            <if test="true">
+                AND a.type_id = b.id
+            </if>
+        </where>
+    </sql>
+
+    <delete id="deleteByIds"  parameterType="java.util.List">
+        delete from t_s_product where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <resultMap id="detailResultMap" type="com.uway.product.entity.Product">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="product_name" property="productName" jdbcType="VARCHAR" />
+        <result column="price" property="price" jdbcType="VARCHAR" />
+        <result column="status_id" property="statusId" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="VARCHAR" />
+        <result column="note" property="note" jdbcType="VARCHAR" />
+        <association property="productType" javaType="com.uway.product.entity.ProductType">
+            <id property="id" column="prodcutType_id"/>
+            <result property="productType" column="product_type"/>
+        </association>
+    </resultMap>
+
+    <select id="paging"  resultMap="detailResultMap" >
+        select a.id,a.product_name,a.price,a.status_id,a.create_time,a.note,b.product_type,b.id as prodcutType_id
+        from t_s_product a,t_s_productType b
+        <include refid="Model_Where_Clause2" />
+         order by a.create_time
+        limit   #{pages},#{rows}
+    </select>
+
+    <select id="total"  resultType="java.lang.Integer" >
+        select count(1) from t_s_product a,t_s_productType b
+        <include refid="Model_Where_Clause2" />
+        order by a.create_time
+    </select>
+
+    <select id="getProductById"  parameterType="java.lang.Integer" resultMap="detailResultMap" >
+        select id,product_type from t_s_productType where id = #{id}
+    </select>
+
+
+</mapper>

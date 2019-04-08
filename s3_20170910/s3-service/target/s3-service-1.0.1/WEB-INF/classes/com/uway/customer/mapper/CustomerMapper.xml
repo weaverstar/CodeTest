@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.customer.mapper.CustomerMapper">
+    <!-- 请在此添加自定义方法（开始） -->
+
+    <!-- 请在此添加自定义方法（结束） -->
+
+    <sql id="Model_Where_Clause">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( id )">
+                AND id = #{id}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+                AND <![CDATA[create_time >= #{createTimeStart} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+                AND <![CDATA[create_time <= #{createTimeEnd} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( name )">
+                AND customer_name = #{name}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( cityId )">
+                AND city_id = #{cityId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( townId )">
+                AND town_id = #{townId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( phone )">
+                AND unit = #{phone}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( statusId )">
+                AND status_id = #{statusId}
+            </if>
+        </where>
+    </sql>
+
+    <delete id="deleteByIds"  parameterType="java.util.List">
+        delete from t_s_customer where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+</mapper>

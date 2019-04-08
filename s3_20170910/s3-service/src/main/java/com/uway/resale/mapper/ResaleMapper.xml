@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.resale.mapper.ResaleMapper">
+	<!-- 请在此添加自定义方法（开始） -->
+
+	<!-- 请在此添加自定义方法（结束） -->
+
+	<sql id="Model_Where_Clause">
+	<where>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( resaleId )">
+				AND resale_id = #{resaleId}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+				AND <![CDATA[start_time >= #{createTimeStart} ]]>
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+				AND <![CDATA[start_time <= #{createTimeEnd} ]]>
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( productType )">
+				AND product_type = #{productType}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( product )">
+				AND product = #{product}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( price )">
+				AND price = #{price}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( unit )">
+				AND unit = #{unit}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( productNum )">
+				AND product_num = #{productNum}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( operName )">
+				AND oper_name = #{operName}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( editTime )">
+				AND edit_time = #{editTime}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( isDelete )">
+				AND isDelete = #{isDelete}
+			</if>
+			<if test="@org.apache.ibatis.util.Ognl@isNotEmpty( mainId )">
+				AND main_id = #{mainId}
+			</if>
+		</where>
+	 </sql>
+
+	<delete id="deleteByIds"  parameterType="java.util.List">
+		delete from t_s_resale where resale_id in
+		<foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+			               #{item}
+		 </foreach>
+	</delete>
+
+	<delete id="deleteByMainId"  parameterType="java.lang.String">
+		delete from t_s_resale where main_id = #{mainId}
+	</delete>
+
+	<select  id="findObject" parameterType="java.lang.String" resultType="java.util.HashMap">
+		select a.product_type as product_type,a.product as  product_id,b.product_type as productType,c.product_name as product,
+		a.price as price,a.product_num as productNum,a.unit as unit
+		from t_s_resale a,t_s_producttype b,t_s_product c
+		where a.main_id = #{mainId} and b.id = a.product_type and c.id = a.product
+	</select>
+	
+
+
+</mapper>

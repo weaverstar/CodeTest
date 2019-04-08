@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:task="http://www.springframework.org/schema/task"  
+	xmlns:mybatis="http://mybatis.org/schema/mybatis-spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd  
+	 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd   
+	 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd 
+	 http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd 
+	 http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+     http://www.springframework.org/schema/task  
+	 http://www.springframework.org/schema/task/spring-task-3.1.xsd  
+     http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+	<task:annotation-driven />
+	<task:executor id="myExecutor" pool-size="5"/>
+	<task:scheduler id="myScheduler" pool-size="24"/>  
+	 
+	<context:component-scan base-package="com.uway.*.service">
+		<context:exclude-filter type="annotation"
+			expression="org.springframework.remoting.service.annotation.RemoteService" />
+	</context:component-scan>
+	<context:annotation-config />
+
+    <!-- 使用annotation定义事务 -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<context:property-placeholder  location="classpath:spring/jdbc.properties,classpath:message/config.properties" />
+	
+	<!-- 配置druid数据源 -->
+	<bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close"> 
+	      <!-- 基本属性 url、user、password -->
+	      <property name="url" value="${jdbc.url}" />
+	      <property name="username" value="${jdbc.username}" />
+	      <property name="password" value="${jdbc.password}" />
+	
+	      <!-- 配置初始化大小、最小、最大 -->
+	      <property name="initialSize" value="1" />
+	      <property name="minIdle" value="1" /> 
+	      <property name="maxActive" value="150" />
+	
+	      <!-- 配置获取连接等待超时的时间 -->
+	      <property name="maxWait" value="60000" />
+	
+	      <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+	      <property name="timeBetweenEvictionRunsMillis" value="60000" />
+	
+	      <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+	      <property name="minEvictableIdleTimeMillis" value="300000" />
+	
+	      <property name="validationQuery" value="SELECT 'x'" />
+	      <property name="testWhileIdle" value="true" />
+	      <property name="testOnBorrow" value="false" />
+	      <property name="testOnReturn" value="false" />
+	
+	      <!-- 打开PSCache，并且指定每个连接上PSCache的大小 -->
+	      <!-- 
+	      是否缓存preparedStatement，也就是PSCache。PSCache对支持游标的数据库性能提升巨大，比如说oracle。在mysql下建议关闭。
+	      要启用PSCache，必须配置大于0，当大于0时，poolPreparedStatements自动触发修改为true。在Druid中，不会存在Oracle下PSCache占用内存过多的问题，可以把这个数值配置大一些，比如说100 -->
+	      <property name="poolPreparedStatements" value="false" /><!-- 
+	      <property name="maxPoolPreparedStatementPerConnectionSize" value="20" /> -->
+	
+	      <!-- 配置监控统计拦截的filters -->
+	      <property name="filters" value="stat" />
+	</bean>
+
+	<!-- transaction manager, use JtaTransactionManager for global tx -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+		<qualifier value="core" />
+	</bean>
+	  
+	<mybatis:scan base-package="com.uway.*.mapper" />
+	
+	<!-- define the SqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:mybatis-plugin-config.xml" />
+       
+	</bean>
+ 
+	<!-- 连接池的配置信息 -->
+	<bean id="jedisConfig" class="redis.clients.jedis.JedisPoolConfig">
+		<!-- 说明一个pool可以有多少个Jedis实例 -->
+		<property name="maxActive" value="100000" />
+		<!-- 最大Idle -->
+		<property name="maxIdle" value="5" />
+		<!-- 最小Idle -->
+		<property name="minIdle" value="1" />
+		<!-- 获得一个jedis实例的时候是否检查连接可用性（ping()） -->
+		<property name="testOnBorrow" value="true" />
+		<!-- return 一个jedis实例给pool时，是否检查连接可用性（ping()） -->
+		<property name="testOnReturn" value="true" />
+		<!-- idle状态监测用异步线程evict进行检查， -->
+		<property name="testWhileIdle" value="true" />
+		<!-- 一次最多evict的pool里的jedis实例个数 -->
+		<property name="numTestsPerEvictionRun" value="1000" />
+		<!-- test idle 线程的时间间隔 -->
+		<property name="timeBetweenEvictionRunsMillis" value="60000" />
+		<!--最大等待wait时间 -->
+		<property name="maxWait" value="60000" />
+		<property name="whenExhaustedAction" value="1" />
+	</bean>
+	
+	
+
+     <!-- jedis集群部署 -->
+    <bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool" destroy-method="destroy">
+        <constructor-arg ref="jedisConfig" />
+        <constructor-arg>
+            <list>
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.host.1}" />
+                    <constructor-arg value="instance:01" />
+                    <property name="password" value="${redis.password.1}"/>
+                    <property name="timeout" value="${redis.timeout}"/>                    
+                </bean>
+                <!-- 
+                <bean class="redis.clients.jedis.JedisShardInfo">
+                    <constructor-arg value="${redis.host.2}" />
+                    <constructor-arg value="instance:02" />
+                    <property name="password" value="${redis.password.2}"/>
+                    <property name="timeout" value="${redis.timeout}"/>     
+                </bean>
+                -->
+            </list>
+        </constructor-arg>
+    </bean>
+
+	<bean id="redisClient" class="com.uway.common.redis.SharedRedisClient"  depends-on="jedisConfig">
+		<constructor-arg name="shardedJedisPool" ref="shardedJedisPool" /> <!-- 加载jedisPool配置信息 -->
+	</bean>
+
+ 
+   	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basenames">
+			<list>
+				<value>message/exception</value>
+                <value>message/config</value>
+			</list>
+		</property>
+	</bean>
+	
+
+</beans>

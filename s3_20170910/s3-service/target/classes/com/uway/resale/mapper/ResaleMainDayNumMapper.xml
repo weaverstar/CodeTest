@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.resale.mapper.ResaleMainDayNumMapper">
+    <!-- 请在此添加自定义方法（开始） -->
+
+    <!-- 请在此添加自定义方法（结束） -->
+
+    <sql id="Model_Where_Clause">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( id )">
+                AND id = #{id}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( timeIndex )">
+                AND time_index = #{timeIndex}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( num )">
+                AND num = #{num}
+            </if>
+        </where>
+    </sql>
+
+</mapper>

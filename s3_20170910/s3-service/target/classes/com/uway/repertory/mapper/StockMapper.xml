@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.repertory.mapper.StockMapper">
+    <!-- 请在此添加自定义方法（开始） -->
+
+    <!-- 请在此添加自定义方法（结束） -->
+
+    <sql id="Model_Where_Clause">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( id )">
+                AND id = #{id}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+                AND <![CDATA[a.create_time >= #{createTimeStart} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+                AND <![CDATA[a.create_time <= #{createTimeEnd} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( productId )">
+                AND a.product_id = #{productId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( productType )">
+                AND a.product_type = #{productType}
+            </if>
+            <if test="true">
+                AND a.product_id = b.id and a.product_type = c.id
+            </if>
+        </where>
+    </sql>
+
+    <delete id="deleteByIds"  parameterType="java.util.List">
+        delete from t_s_stock where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <resultMap id="detailResultMap" type="com.uway.repertory.entity.Stock">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="price" property="price" jdbcType="VARCHAR"/>
+        <id column="total" property="total" jdbcType="INTEGER"/>
+        <id column="create_time" property="createTime" jdbcType="VARCHAR"/>
+        <id column="operator" property="operator" jdbcType="VARCHAR"/>
+        <id column="pay_status" property="payStatus" jdbcType="INTEGER"/>
+        <association property="productOfType" javaType="com.uway.product.entity.ProductType">
+            <id property="id" column="product_type_id"/>
+            <result property="productType" column="product_type"/>
+        </association>
+        <association property="product" javaType="com.uway.product.entity.Product">
+            <id property="id" column="product_id"/>
+            <result property="productName" column="product_name"/>
+        </association>
+    </resultMap>
+
+    <select id="paging"  resultMap="detailResultMap" >
+        select a.id,a.total,a.product_type as a_product_type,a.price as price,b.id as product_id,b.product_name as product_name,
+        a.create_time as create_time,c.id as product_type_id,c.product_type as product_type
+        from t_s_stock a,t_s_product b,t_s_productType c
+        <include refid="Model_Where_Clause" />
+        order by a.create_time
+        limit   #{pages},#{rows}
+    </select>
+
+    <select id="total"  resultType="java.lang.Integer" >
+        select count(1) from t_s_stock a,t_s_product b,t_s_productType c
+        <include refid="Model_Where_Clause" />
+        order by a.total
+    </select>
+
+
+    <select id="findByIds"  parameterType="java.util.List" resultType="java.util.Map">
+        select id,product_id,product_type,total from t_s_stock where id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+
+
+</mapper>

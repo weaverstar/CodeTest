@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.uway.wholeSale.mapper.WholeSaleMainMapper">
+    <!-- 请在此添加自定义方法（开始） -->
+
+    <!-- 请在此添加自定义方法（结束） -->
+
+    <sql id="Model_Where_Clause">
+        <where>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( mainId )">
+                AND main_id = #{mainId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeStart )">
+                AND <![CDATA[operator_time >= #{createTimeStart} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( createTimeEnd )">
+                AND <![CDATA[operator_time <= #{createTimeEnd} ]]>
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( flowId )">
+                AND flow_id = #{flowId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( customerId )">
+                AND customer_id = #{customerId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( shopId )">
+                AND shop_id = #{shopId}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( payType )">
+                AND pay_type = #{payType}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( phone )">
+                AND phone = #{phone}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( city )">
+                AND city = #{city}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( town )">
+                AND town = #{town}
+            </if>
+            <if test="@org.apache.ibatis.util.Ognl@isNotEmpty( temp2 )">
+                AND a.temp2 = #{temp2}
+            </if>
+            <if test="true">
+                AND a.customer_id = b.id
+            </if>
+
+        </where>
+    </sql>
+
+    <delete id="deleteByIds"  parameterType="String">
+        delete from t_s_wholesalemain where main_id in
+        <foreach collection="list" index="index" item="item" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select  id="findObject" parameterType="java.util.HashMap" resultType="java.util.HashMap">
+        select a.operator_time as operatorTime,a.city as city,a.town as town,b.customer_name as customerId,a.phone as phone,a.main_id as mainId,
+        a.temp1 as temp1,a.temp2 as temp2,a.temp3 as temp3
+        from t_s_wholesalemain a,t_s_customer b
+        <include refid="Model_Where_Clause" />
+        order by operator_time desc
+        limit #{pages},#{rows}
+    </select>
+
+    <select  id="findObjectTotal" parameterType="java.util.HashMap" resultType="Integer">
+        select count(1) from t_s_wholesalemain a,t_s_customer b
+        <include refid="Model_Where_Clause" />
+        order by operator_time desc
+    </select>
+
+
+
+
+
+</mapper>
